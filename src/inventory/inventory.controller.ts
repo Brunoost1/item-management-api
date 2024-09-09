@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpStatus, ParseIntPipe } from '@nestjs/common';
 import { InventoryService } from './inventory.service';  
 import { InventoryItem } from 'src/interfaces/inventory-item.interface';
 
@@ -12,17 +12,28 @@ export class InventoryController {
   }
 
   @Post()
-  create(@Body() newItem: Omit<InventoryItem, 'id' | 'addedAt'>): InventoryItem {
+  create(@Body() newItem: Omit<InventoryItem, 'id' >): InventoryItem {
     return this.inventoryService.create(newItem);
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() updatedItem: Partial<Omit<InventoryItem, 'id' | 'addedAt'>>): InventoryItem {
-    return this.inventoryService.update(id, updatedItem);
+  update(
+    @Param('id', ParseIntPipe) id: number, 
+    @Body() updatedItem: Partial<Omit<InventoryItem, 'id' >>
+  ): InventoryItem {
+    try {
+      return this.inventoryService.update(id, updatedItem);
+    } catch (error) {
+      throw new HttpException('Item not found', HttpStatus.NOT_FOUND);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number): void {
-    return this.inventoryService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number): void {
+    try {
+      this.inventoryService.remove(id);
+    } catch (error) {
+      throw new HttpException('Item not found', HttpStatus.NOT_FOUND);
+    }
   }
 }
