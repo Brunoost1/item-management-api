@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpStatus, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpStatus, ParseIntPipe, Query  } from '@nestjs/common';
 import { InventoryService } from './inventory.service';  
 import { InventoryItem } from 'src/interfaces/inventory-item.interface';
 
@@ -7,7 +7,10 @@ export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
   @Get()
-  findAll(): InventoryItem[] {
+  findAll(@Query('name') name?: string): InventoryItem[] {
+    if (name) {
+      return this.inventoryService.findByName(name);
+    }
     return this.inventoryService.findAll();
   }
 

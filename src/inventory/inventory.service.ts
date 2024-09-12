@@ -10,6 +10,12 @@ export class InventoryService {
     return this.items;
   }
 
+  findByName(name: string): InventoryItem[] {
+    return this.items.filter(item =>
+      item.name.toLowerCase().includes(name.toLowerCase())
+    );
+  }
+
   create(newItem: Omit<InventoryItem, 'id' >): InventoryItem {
     const item: InventoryItem = {
       id: this.idCounter++,
